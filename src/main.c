@@ -104,7 +104,7 @@ int main(void){
 
         //comand parser :)
 
-        free(input);        //implement a buffer of past comands???
+        free(input);        //implement a buffer of past comands??? ^[[A^[[B^[[C^[[D (READ ^[[...)
     }
 
     return EXIT_SUCCESS;
