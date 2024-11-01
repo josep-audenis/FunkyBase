@@ -14,16 +14,18 @@
 #define RESET "\x1B[0m"
 
 #define WELCOME_MSG "\nInitializing FunkyBase...\n\n\n"
-#define PROMPT "FunkyBase > "
+#define PROMPT "FunkyBase> "
 
 #define EXIT_SUCCESS 0
+#define LOW_UPP_DIF 'A'-'a'
 
 #define print(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
 
 
 
 char * readUntil(int fd, char delimitator){
-    char * buffer = NULL;
+    char * buffer = malloc(sizeof(char));
+    buffer[0] = '\0';
     int i = 0;
     int bytes_read;
     char aux;
@@ -47,10 +49,50 @@ char * readUntil(int fd, char delimitator){
     return buffer;
 }
 
+char** getArguments(char * string, char separator, char ending, int * argc){
+    
+    int b_size = 0;
+    (*argc) = 0;
+
+    char * buffer = NULL;
+    char ** argv = NULL;
+
+    for (int i = 0; i < (int) strlen(string) + 1; i++) {
+
+        if (string[i] == separator || string[i] == ending) {
+            
+            if (b_size == 0 && string[i] == separator) continue;
+            if (b_size == 0 && string[i] == ending) break;            
+
+            (*argc)++;
+            buffer[b_size] = '\0';
+            
+            argv = realloc(argv, sizeof(char*) * (*argc));
+            argv[(*argc) - 1] = malloc(sizeof(char) * b_size);
+            
+            strcpy(argv[(*argc) - 1], buffer);      //implement own strcpy???
+            
+            if (string[i] == ending) break;
+            b_size = 0;
+            continue;
+        }
+
+        b_size++;
+        buffer = realloc(buffer, sizeof(char) * (b_size + 1));
+        buffer[b_size - 1] = string[i];
+    }
+
+    free(buffer);
+
+    return argv;
+}
 
 
-int main(int argc, char * argv[]){
 
+int main(void){
+
+    int argc;         
+    char ** argv;     
     
     char * input;
     print(WELCOME_MSG, RESET);
@@ -58,10 +100,11 @@ int main(int argc, char * argv[]){
     while (1) {
         print(PROMPT, RESET);
         input = readUntil(STDIN_FILENO, '\n');
-        print(input, GREEN);
-        free(input);
+        argv = getArguments(input, ' ', '\0', &argc);
 
-        print(PROMPT, RESET);
+        //comand parser :)
+
+        free(input);        //implement a buffer of past comands???
     }
 
     return EXIT_SUCCESS;
