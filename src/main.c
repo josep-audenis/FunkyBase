@@ -25,8 +25,9 @@
 
 
 
-void stringCopy(char * destination, char * origin); //TODO :)
-int stringLength(char * string); //TODO :)
+void stringCopy(char * destination, char * origin); //TODO: Priority 2 :)
+int stringCompare(char * string1, char * string2); //TODO: Priority 3 :)
+int stringLength(char * string); //TODO: Priority 1:)
 
 
 char * readUntil(int fd, char delimitator){
