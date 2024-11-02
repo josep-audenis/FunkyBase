@@ -19,8 +19,14 @@
 #define EXIT_SUCCESS 0
 #define LOW_UPP_DIF 'A'-'a'
 
-#define print(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
+#define print(x) write(STDOUT_FILENO, x, strlen(x));
+#define printError(x) write(STDOUT_FILENO, RED, strlen(RED)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
+#define printColor(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
 
+
+
+void stringCopy(char * destination, char * origin); //TODO :)
+int stringLength(char * string); //TODO :)
 
 
 char * readUntil(int fd, char delimitator){
@@ -70,7 +76,7 @@ char** getArguments(char * string, char separator, char ending, int * argc){
             argv = realloc(argv, sizeof(char*) * (*argc));
             argv[(*argc) - 1] = malloc(sizeof(char) * b_size);
             
-            strcpy(argv[(*argc) - 1], buffer);      //implement own strcpy???
+            strcpy(argv[(*argc) - 1], buffer);
             
             if (string[i] == ending) break;
             b_size = 0;
@@ -87,7 +93,12 @@ char** getArguments(char * string, char separator, char ending, int * argc){
     return argv;
 }
 
-
+void freeArgs(char ** argv, int argc){
+    for (int i = 0; i < argc; i++){
+        free(argv[i]);
+    }
+    free(argv);
+}
 
 int main(void){
 
@@ -95,15 +106,16 @@ int main(void){
     char ** argv;     
     
     char * input;
-    print(WELCOME_MSG, RESET);
+    print(WELCOME_MSG);
 
     while (1) {
-        print(PROMPT, RESET);
+        print(PROMPT);
         input = readUntil(STDIN_FILENO, '\n');
         argv = getArguments(input, ' ', '\0', &argc);
 
         //comand parser :)
 
+        freeArgs(argv, argc);
         free(input);        //implement a buffer of past comands??? ^[[A^[[B^[[C^[[D (READ ^[[...)
     }
 
