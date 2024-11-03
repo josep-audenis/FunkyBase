@@ -16,18 +16,32 @@
 #define WELCOME_MSG "\nInitializing FunkyBase...\n\n\n"
 #define PROMPT "FunkyBase> "
 
-#define EXIT_SUCCESS 0
 #define LOW_UPP_DIF 'A'-'a'
 
 #define print(x) write(STDOUT_FILENO, x, strlen(x));
+#define printLine(x) write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, "\n", strlen("\n"));
 #define printError(x) write(STDOUT_FILENO, RED, strlen(RED)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
 #define printColor(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
+#define printColorLine(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET)); write(STDOUT_FILENO, "\n", strlen("\n"));
 
 
 
-void stringCopy(char * destination, char * origin); //TODO: Priority 2 :)
-int stringCompare(char * string1, char * string2); //TODO: Priority 3 :)
-int stringLength(char * string); //TODO: Priority 1:)
+void stringCopy(char * destination, char * origin); //TODO: Priority 1 :)
+int stringCompare(char * string1, char * string2); //TODO: Priority 2 :)
+
+
+int stringLength(char * string){
+
+    int count = 0;
+    int i = 0;
+
+    while(string[i] != '\0'){
+        count++;
+        i++;
+    }
+
+    return count;
+}
 
 
 char * readUntil(int fd, char delimitator){
@@ -55,6 +69,7 @@ char * readUntil(int fd, char delimitator){
 
     return buffer;
 }
+
 
 char** getArguments(char * string, char separator, char ending, int * argc){
     
@@ -94,12 +109,14 @@ char** getArguments(char * string, char separator, char ending, int * argc){
     return argv;
 }
 
+
 void freeArgs(char ** argv, int argc){
     for (int i = 0; i < argc; i++){
         free(argv[i]);
     }
     free(argv);
 }
+
 
 int main(void){
 
