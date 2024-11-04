@@ -18,16 +18,33 @@
 
 #define LOW_UPP_DIF 'A'-'a'
 
-#define print(x) write(STDOUT_FILENO, x, strlen(x));
-#define printLine(x) write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, "\n", strlen("\n"));
-#define printError(x) write(STDOUT_FILENO, RED, strlen(RED)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
-#define printColor(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET));
-#define printColorLine(x, y) write(STDOUT_FILENO, y, strlen(y)); write(STDOUT_FILENO, x, strlen(x)); write(STDOUT_FILENO, RESET, strlen(RESET)); write(STDOUT_FILENO, "\n", strlen("\n"));
+#define print(x) write(STDOUT_FILENO, x, stringLength(x));
+#define printLine(x) write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, "\n", stringLength("\n"));
+#define printError(x) write(STDOUT_FILENO, RED, stringLength(RED)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET));
+#define printColor(x, y) write(STDOUT_FILENO, y, stringLength(y)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET));
+#define printColorLine(x, y) write(STDOUT_FILENO, y, stringLength(y)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET)); write(STDOUT_FILENO, "\n", stringLength("\n"));
 
 
 
-void stringCopy(char * destination, char * origin); //TODO: Priority 1 :)
-int stringCompare(char * string1, char * string2); //TODO: Priority 2 :)
+char * stringCopy(char * origin){
+
+    int i = 0;
+    char * destination = NULL;
+
+    while(origin[i] != '\0') {
+
+        destination = realloc(destination, sizeof(char) * (i + 2));
+        destination[i] = origin[i];
+        i++;
+    }
+
+    destination[i] = '\0';
+    
+    return destination;
+}
+
+
+int stringCompare(char * string1, char * string2); //TODO: Priority 1 :)
 
 
 int stringLength(char * string){
@@ -54,7 +71,8 @@ char * readUntil(int fd, char delimitator){
     bytes_read = read(fd, &aux, sizeof(char));
 
     while(aux != delimitator && aux != '\n'){
-        if (bytes_read == 0){
+
+        if (bytes_read == 0) {
             return buffer;
         }
 
@@ -79,7 +97,7 @@ char** getArguments(char * string, char separator, char ending, int * argc){
     char * buffer = NULL;
     char ** argv = NULL;
 
-    for (int i = 0; i < (int) strlen(string) + 1; i++) {
+    for (int i = 0; i < stringLength(string) + 1; i++) {
 
         if (string[i] == separator || string[i] == ending) {
             
@@ -92,7 +110,7 @@ char** getArguments(char * string, char separator, char ending, int * argc){
             argv = realloc(argv, sizeof(char*) * (*argc));
             argv[(*argc) - 1] = malloc(sizeof(char) * b_size);
             
-            strcpy(argv[(*argc) - 1], buffer);
+            argv[(*argc) - 1] = stringCopy(buffer);
             
             if (string[i] == ending) break;
             b_size = 0;
@@ -110,27 +128,29 @@ char** getArguments(char * string, char separator, char ending, int * argc){
 }
 
 
-void freeArgs(char ** argv, int argc){
-    for (int i = 0; i < argc; i++){
+void freeArgs(char ** argv, int argc) {
+
+    for (int i = 0; i < argc; i++) {
         free(argv[i]);
     }
+
     free(argv);
 }
 
 
-int main(void){
+int main(void) {
 
     int argc;         
     char ** argv;     
     
     char * input;
-    print(WELCOME_MSG);
+    print(WELCOME_MSG);    
 
     while (1) {
         print(PROMPT);
         input = readUntil(STDIN_FILENO, '\n');
         argv = getArguments(input, ' ', '\0', &argc);
-
+    
         //comand parser :)
 
         freeArgs(argv, argc);
