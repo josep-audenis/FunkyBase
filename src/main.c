@@ -16,7 +16,11 @@
 #define WELCOME_MSG "\nInitializing FunkyBase...\n\n\n"
 #define PROMPT "FunkyBase> "
 
-#define LOW_UPP_DIF 'A'-'a'
+#define UPLOW_DIF 'A'-'a'
+#define LOWUP_DIF 'a'-'A'
+
+#define CASE_SENSITIVE 1
+#define CASE_INSENSITIVE 0
 
 #define print(x) write(STDOUT_FILENO, x, stringLength(x));
 #define printLine(x) write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, "\n", stringLength("\n"));
@@ -43,10 +47,6 @@ char * stringCopy(char * origin){
     return destination;
 }
 
-
-int stringCompare(char * string1, char * string2); //TODO: Priority 1 :)
-
-
 int stringLength(char * string){
 
     int count = 0;
@@ -58,6 +58,24 @@ int stringLength(char * string){
     }
 
     return count;
+}
+
+int stringCompare(char * string1, char * string2, int caseSensitivity){
+
+    for (int i = 0; i < stringLength(string1); i++){
+        
+        if (caseSensitivity == CASE_SENSITIVE) {
+            if (string1[i] != string2[i]) return EXIT_FAILURE;
+        
+        } else if (caseSensitivity == CASE_INSENSITIVE) {
+
+            if ((string1[i] != string2[i]) && ((string1[i]+LOWUP_DIF) != string2[i]) && ((string1[i]+UPLOW_DIF) != string2[i])) return EXIT_FAILURE;
+        } else {
+            printError("ERROR: Invalid case option :(\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    return EXIT_SUCCESS;
 }
 
 
@@ -142,16 +160,19 @@ int main(void) {
 
     int argc;         
     char ** argv;     
-    
+
     char * input;
     print(WELCOME_MSG);    
+
+    input = readUntil(STDIN_FILENO, '\n');
+    
+    //char * buffer;
+    //buffer = stringCopy(input);
 
     while (1) {
         print(PROMPT);
         input = readUntil(STDIN_FILENO, '\n');
         argv = getArguments(input, ' ', '\0', &argc);
-    
-        //comand parser :)
 
         freeArgs(argv, argc);
         free(input);        //implement a buffer of past comands??? ^[[A^[[B^[[C^[[D (READ ^[[...)
