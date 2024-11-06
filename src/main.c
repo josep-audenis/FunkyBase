@@ -15,6 +15,9 @@
 
 #define WELCOME_MSG "\nInitializing FunkyBase...\n\n\n"
 #define PROMPT "FunkyBase> "
+#define EXIT_MSG "\nExiting FunkyBase\n"
+
+#define FB_VERSION "FunkyBase v0.1"
 
 #define UPLOW_DIF 'A'-'a'
 #define LOWUP_DIF 'a'-'A'
@@ -28,7 +31,16 @@
 #define printColor(x, y) write(STDOUT_FILENO, y, stringLength(y)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET));
 #define printColorLine(x, y) write(STDOUT_FILENO, y, stringLength(y)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET)); write(STDOUT_FILENO, "\n", stringLength("\n"));
 
+/*
+ * IDEES D'IMPLEMENTACIÓ:
+ * - Per a les funcions estaria interessant tenir diversos arrays on l'index de cadaun sigui una comanda,
+ * després a l'hora d'implementar missatges d'error d'us o comprovar quin és la comanda introduida es pot 
+ * fer per indexos d'aquests arrays. 
+ */
 
+
+char * toLowerCase(char * string);  //TODO: priority 1
+char * toUpperCase(char * string);  //TODO: priority 2
 
 char * stringCopy(char * origin){
 
@@ -106,8 +118,55 @@ char * readUntil(int fd, char delimitator){
     return buffer;
 }
 
+void parseArguments(char ** argv, int argc) {
 
-char** getArguments(char * string, char separator, char ending, int * argc){
+    if (!stringCompare(argv[0], "EXIT", CASE_INSENSITIVE)) {
+        switch(argc){
+            case 1:
+                printLine(EXIT_MSG);
+                exit(EXIT_SUCCESS);
+            default:
+                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
+                for (int i = 1; i < argc; i++) {
+                    print(" ");
+                    print(argv[i]); //no toLowerCase
+                }
+                printError(": invalid options\n");
+                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
+                printError(": usage: ") //to be implemented :)
+                printColorLine(argv[0], GREEN); //toLowerCase (when implemented)
+        }
+    } else if (!stringCompare(argv[0], "VERSION", CASE_INSENSITIVE)) {
+        switch(argc){
+            case 1:
+                printColorLine(FB_VERSION, GREEN);
+                break;
+            case 2:
+                printError("To be implemented...\n")
+                break;
+            default:
+                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
+                for (int i = 1; i < argc; i++) {
+                    print(" ");
+                    printColor(argv[i], YELLOW); //no toLowerCase
+                }
+                printError(": invalid options\n");
+                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
+                printError(": usage: ") //to be implemented :)
+        }
+
+    } else {
+        printColor(argv[0], YELLOW);    //toLowerCase (when implemented)
+        printError(": unrecognized command\n");
+        return;
+
+    }
+
+
+    return;
+}
+
+char** getArguments(char * string, char separator, char ending, int * argc) {
     
     int b_size = 0;
     (*argc) = 0;
@@ -164,15 +223,13 @@ int main(void) {
     char * input;
     print(WELCOME_MSG);    
 
-    input = readUntil(STDIN_FILENO, '\n');
     
-    //char * buffer;
-    //buffer = stringCopy(input);
-
     while (1) {
         print(PROMPT);
         input = readUntil(STDIN_FILENO, '\n');
         argv = getArguments(input, ' ', '\0', &argc);
+        if (argc > 0) parseArguments(argv, argc);
+
 
         freeArgs(argv, argc);
         free(input);        //implement a buffer of past comands??? ^[[A^[[B^[[C^[[D (READ ^[[...)
