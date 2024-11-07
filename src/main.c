@@ -121,21 +121,8 @@ char * readUntil(int fd, char delimitator){
 void parseArguments(char ** argv, int argc) {
 
     if (!stringCompare(argv[0], "EXIT", CASE_INSENSITIVE)) {
-        switch(argc){
-            case 1:
-                printLine(EXIT_MSG);
-                exit(EXIT_SUCCESS);
-            default:
-                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
-                for (int i = 1; i < argc; i++) {
-                    print(" ");
-                    print(argv[i]); //no toLowerCase
-                }
-                printError(": invalid options\n");
-                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
-                printError(": usage: ") //to be implemented :)
-                printColorLine(argv[0], GREEN); //toLowerCase (when implemented)
-        }
+        printLine(EXIT_MSG);
+		exit(EXIT_SUCCESS);
     } else if (!stringCompare(argv[0], "VERSION", CASE_INSENSITIVE)) {
         switch(argc){
             case 1:
@@ -152,7 +139,7 @@ void parseArguments(char ** argv, int argc) {
                 }
                 printError(": invalid options\n");
                 printColor(argv[0], YELLOW); //toLowerCase (when implemented)
-                printError(": usage: ") //to be implemented :)
+                printError(": usage: \n") //to be implemented :)
         }
 
     } else {
