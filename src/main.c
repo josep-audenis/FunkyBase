@@ -19,8 +19,8 @@
 
 #define FB_VERSION "FunkyBase v0.1"
 
-#define UPLOW_DIF 'A'-'a'
-#define LOWUP_DIF 'a'-'A'
+#define LOW_2_UP 'A'-'a'
+#define UP_2_LOW 'a'-'A'
 
 #define CASE_SENSITIVE 1
 #define CASE_INSENSITIVE 0
@@ -38,8 +38,25 @@
  * fer per indexos d'aquests arrays. 
  */
 
+int stringLength(char * string);
 
-char * toLowerCase(char * string);  //TODO: priority 1
+
+
+char * toLowerCase(char * string){
+
+	char * lowerCase = malloc(sizeof(char) * stringLength(string));
+
+	for (int i = 0; i < stringLength(string); i++){
+		if (string[i] >= 'A' && string[i] <= 'Z'){
+			lowerCase[i] = string[i] + UP_2_LOW;		
+		} else {
+			lowerCase[i] = string[i];
+		}
+	}
+
+	return lowerCase;
+}
+
 char * toUpperCase(char * string);  //TODO: priority 2
 
 char * stringCopy(char * origin){
@@ -81,7 +98,7 @@ int stringCompare(char * string1, char * string2, int caseSensitivity){
         
         } else if (caseSensitivity == CASE_INSENSITIVE) {
 
-            if ((string1[i] != string2[i]) && ((string1[i]+LOWUP_DIF) != string2[i]) && ((string1[i]+UPLOW_DIF) != string2[i])) return EXIT_FAILURE;
+            if ((string1[i] != string2[i]) && ((string1[i]+UP_2_LOW) != string2[i]) && ((string1[i]+LOW_2_UP) != string2[i])) return EXIT_FAILURE;
         } else {
             printError("ERROR: Invalid case option :(\n");
             exit(EXIT_FAILURE);
@@ -132,18 +149,18 @@ void parseArguments(char ** argv, int argc) {
                 printError("To be implemented...\n")
                 break;
             default:
-                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
+                printColor(toLowerCase(argv[0]), YELLOW); //toLowerCase (when implemented)
                 for (int i = 1; i < argc; i++) {
                     print(" ");
                     printColor(argv[i], YELLOW); //no toLowerCase
                 }
                 printError(": invalid options\n");
-                printColor(argv[0], YELLOW); //toLowerCase (when implemented)
+                printColor(toLowerCase(argv[0]), YELLOW); //toLowerCase (when implemented)
                 printError(": usage: \n") //to be implemented :)
         }
 
     } else {
-        printColor(argv[0], YELLOW);    //toLowerCase (when implemented)
+        printColor(toLowerCase(argv[0]), YELLOW);    //toLowerCase (when implemented)
         printError(": unrecognized command\n");
         return;
 
