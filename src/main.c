@@ -46,8 +46,10 @@ char * toLowerCase(char * string){
 
 	char * lowerCase = malloc(sizeof(char) * stringLength(string));
 
-	for (int i = 0; i < stringLength(string); i++){
-		if (string[i] >= 'A' && string[i] <= 'Z'){
+	for (int i = 0; i < stringLength(string); i++) {
+
+		if (string[i] >= 'A' && string[i] <= 'Z') {
+
 			lowerCase[i] = string[i] + UP_2_LOW;		
 		} else {
 			lowerCase[i] = string[i];
@@ -57,7 +59,23 @@ char * toLowerCase(char * string){
 	return lowerCase;
 }
 
-char * toUpperCase(char * string);  //TODO: priority 2
+
+char * toUpperCase(char * string){
+
+	char * upperCase = malloc(sizeof(char) * stringLength(string));
+
+	for (int i = 0; i < stringLength(string); i++) {
+
+		if (string[i] >= 'a' && string[i] <= 'z') {
+
+			upperCase[i] = string[i] + LOW_2_UP;
+		} else {
+			upperCase[i] = string[i];
+		}
+	}
+
+	return upperCase;
+}
 
 char * stringCopy(char * origin){
 
