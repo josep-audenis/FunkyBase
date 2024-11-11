@@ -1,9 +1,7 @@
 #define _GNU_SOURCE
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "../include/string.h"
+#include "../include/io.h"
 
 #define RED "\x1B[31m" 
 #define GREEN "\x1B[32m" 
@@ -19,17 +17,6 @@
 
 #define FB_VERSION "FunkyBase v0.1"
 
-#define LOW_2_UP 'A'-'a'
-#define UP_2_LOW 'a'-'A'
-
-#define CASE_SENSITIVE 1
-#define CASE_INSENSITIVE 0
-
-#define print(x) write(STDOUT_FILENO, x, stringLength(x));
-#define printLine(x) write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, "\n", stringLength("\n"));
-#define printError(x) write(STDOUT_FILENO, RED, stringLength(RED)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET));
-#define printColor(x, y) write(STDOUT_FILENO, y, stringLength(y)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET));
-#define printColorLine(x, y) write(STDOUT_FILENO, y, stringLength(y)); write(STDOUT_FILENO, x, stringLength(x)); write(STDOUT_FILENO, RESET, stringLength(RESET)); write(STDOUT_FILENO, "\n", stringLength("\n"));
 
 /*
  * IDEES D'IMPLEMENTACIÓ:
@@ -38,127 +25,15 @@
  * fer per indexos d'aquests arrays. 
  */
 
-int stringLength(char * string);
 
 
-
-char * toLowerCase(char * string){
-
-	char * lowerCase = malloc(sizeof(char) * stringLength(string));
-
-	for (int i = 0; i < stringLength(string); i++) {
-
-		if (string[i] >= 'A' && string[i] <= 'Z') {
-
-			lowerCase[i] = string[i] + UP_2_LOW;		
-		} else {
-			lowerCase[i] = string[i];
-		}
-	}
-
-	return lowerCase;
-}
-
-
-char * toUpperCase(char * string){
-
-	char * upperCase = malloc(sizeof(char) * stringLength(string));
-
-	for (int i = 0; i < stringLength(string); i++) {
-
-		if (string[i] >= 'a' && string[i] <= 'z') {
-
-			upperCase[i] = string[i] + LOW_2_UP;
-		} else {
-			upperCase[i] = string[i];
-		}
-	}
-
-	return upperCase;
-}
-
-char * stringCopy(char * origin){
-
-    int i = 0;
-    char * destination = NULL;
-
-    while(origin[i] != '\0') {
-
-        destination = realloc(destination, sizeof(char) * (i + 2));
-        destination[i] = origin[i];
-        i++;
-    }
-
-    destination[i] = '\0';
-    
-    return destination;
-}
-
-int stringLength(char * string){
-
-    int count = 0;
-    int i = 0;
-
-    while(string[i] != '\0'){
-        count++;
-        i++;
-    }
-
-    return count;
-}
-
-int stringCompare(char * string1, char * string2, int caseSensitivity){
-
-    for (int i = 0; i < stringLength(string1); i++){
-        
-        if (caseSensitivity == CASE_SENSITIVE) {
-            if (string1[i] != string2[i]) return EXIT_FAILURE;
-        
-        } else if (caseSensitivity == CASE_INSENSITIVE) {
-
-            if ((string1[i] != string2[i]) && ((string1[i]+UP_2_LOW) != string2[i]) && ((string1[i]+LOW_2_UP) != string2[i])) return EXIT_FAILURE;
-        } else {
-            printError("ERROR: Invalid case option :(\n");
-            exit(EXIT_FAILURE);
-        }
-    }
-    return EXIT_SUCCESS;
-}
-
-
-char * readUntil(int fd, char delimitator){
-    char * buffer = malloc(sizeof(char));
-    buffer[0] = '\0';
-    int i = 0;
-    int bytes_read;
-    char aux;
-
-    bytes_read = read(fd, &aux, sizeof(char));
-
-    while(aux != delimitator && aux != '\n'){
-
-        if (bytes_read == 0) {
-            return buffer;
-        }
-
-        i++;
-        buffer = realloc(buffer, sizeof(char) * (i+1));
-        buffer[i-1] = aux;
-
-        bytes_read = read(fd, &aux, sizeof(char));
-    }
-
-    buffer[i] = '\0';
-
-    return buffer;
-}
 
 void parseArguments(char ** argv, int argc) {
 
-    if (!stringCompare(argv[0], "EXIT", CASE_INSENSITIVE)) {
+    if (!STRING_compare(argv[0], "EXIT", CASE_INSENSITIVE)) {
         printLine(EXIT_MSG);
 		exit(EXIT_SUCCESS);
-    } else if (!stringCompare(argv[0], "VERSION", CASE_INSENSITIVE)) {
+    } else if (!STRING_compare(argv[0], "VERSION", CASE_INSENSITIVE)) {
         switch(argc){
             case 1:
                 printColorLine(FB_VERSION, GREEN);
@@ -167,18 +42,18 @@ void parseArguments(char ** argv, int argc) {
                 printError("To be implemented...\n")
                 break;
             default:
-                printColor(toLowerCase(argv[0]), YELLOW); //toLowerCase (when implemented)
+                printColor(STRING_toLowerCase(argv[0]), YELLOW); 
                 for (int i = 1; i < argc; i++) {
                     print(" ");
-                    printColor(argv[i], YELLOW); //no toLowerCase
+                    printColor(argv[i], YELLOW); 
                 }
                 printError(": invalid options\n");
-                printColor(toLowerCase(argv[0]), YELLOW); //toLowerCase (when implemented)
+                printColor(STRING_toLowerCase(argv[0]), YELLOW); 
                 printError(": usage: \n") //to be implemented :)
         }
 
     } else {
-        printColor(toLowerCase(argv[0]), YELLOW);    //toLowerCase (when implemented)
+        printColor(STRING_toLowerCase(argv[0]), YELLOW);    
         printError(": unrecognized command\n");
         return;
 
@@ -196,7 +71,7 @@ char** getArguments(char * string, char separator, char ending, int * argc) {
     char * buffer = NULL;
     char ** argv = NULL;
 
-    for (int i = 0; i < stringLength(string) + 1; i++) {
+    for (int i = 0; i < STRING_length(string) + 1; i++) {
 
         if (string[i] == separator || string[i] == ending) {
             
@@ -209,7 +84,7 @@ char** getArguments(char * string, char separator, char ending, int * argc) {
             argv = realloc(argv, sizeof(char*) * (*argc));
             argv[(*argc) - 1] = malloc(sizeof(char) * b_size);
             
-            argv[(*argc) - 1] = stringCopy(buffer);
+            argv[(*argc) - 1] = STRING_copy(buffer);
             
             if (string[i] == ending) break;
             b_size = 0;
@@ -248,7 +123,7 @@ int main(void) {
     
     while (1) {
         print(PROMPT);
-        input = readUntil(STDIN_FILENO, '\n');
+        input = IO_readUntil(STDIN_FILENO, '\n');
         argv = getArguments(input, ' ', '\0', &argc);
         if (argc > 0) parseArguments(argv, argc);
 
