@@ -1,5 +1,6 @@
 #include "../include/string.h"
 #include "../include/io.h"
+#include "../include/message.h"
 
 int STRING_length(char * string){
 
